@@ -43,6 +43,7 @@ func _process(_delta: float) -> void:
 
 func add_item_inventory(new_item: Area2D) -> bool:
 	var empty = null
+	var value = new_item.item_value[new_item.item_id/100] * new_item.item_id%100
 	for inv_slot in $inventory/invent/Container.get_children():
 		if inv_slot is not slot:
 			continue
@@ -50,6 +51,7 @@ func add_item_inventory(new_item: Area2D) -> bool:
 			var new_amount = int(inv_slot.get_node("amount").text)
 			new_amount += 1
 			inv_slot.get_node("amount").text = str(new_amount)
+			inv_slot.slot_value += value
 			return true
 		elif inv_slot.id == 0 and empty == null:
 			empty = inv_slot
@@ -57,6 +59,7 @@ func add_item_inventory(new_item: Area2D) -> bool:
 		empty.get_node("sprite").texture = new_item.get_node("sprite").texture
 		empty.get_node("amount").text = "1"
 		empty.id = new_item.item_id
+		empty.slot_value = value
 		return true
 	return false
 

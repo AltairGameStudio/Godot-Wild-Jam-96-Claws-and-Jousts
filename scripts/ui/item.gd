@@ -23,6 +23,14 @@ var items = {
 	6: "horseshoe",
 	7: "saddle"
 }
+var item_value = {
+	2: 5,
+	3: 8,
+	4: 3,
+	5: 6,
+	6: 4,
+	7: 10
+}
 var item_id = 0
 
 func _ready() -> void:
