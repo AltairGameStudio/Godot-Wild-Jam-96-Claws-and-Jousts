@@ -19,11 +19,13 @@ func _on_body_entered(body: Node2D) -> void:
 	if body is Player:
 		player_in_range = true
 		prompt_label.visible = true
+		_show_praise_if_eligible()
 
 func _on_body_exited(body: Node2D) -> void:
 	if body is Player:
 		player_in_range = false
 		prompt_label.visible = false
+		_hide_praise()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if player_in_range:

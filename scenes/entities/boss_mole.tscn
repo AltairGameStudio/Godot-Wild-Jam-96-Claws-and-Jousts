@@ -1,0 +1,86 @@
+[gd_scene format=3 uid="uid://baf8kxwridps3"]
+
+[ext_resource type="Script" uid="uid://d2tccj0dh1wkw" path="res://scripts/entities/boss_mole.gd" id="1_bm"]
+[ext_resource type="Texture2D" uid="uid://bfak6pjdc7x1j" path="res://assets/sprites/entities/boss.png" id="2_bm_tex"]
+[ext_resource type="Script" uid="uid://cffthbj0sarwx" path="res://scripts/entities/player_hit.gd" id="3_ph"]
+[ext_resource type="Script" uid="uid://bhkb3rqglk3fp" path="res://scripts/entities/enemy_hitbox.gd" id="4_eh"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 58.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurt"]
+radius = 62.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_nose_weak"]
+radius = 24.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hitbox"]
+radius = 54.0
+
+[node name="BossMole" type="CharacterBody2D" unique_id=497679298 groups=["boss", "enemies"]]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_bm")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1732666265]
+scale = Vector2(1.25, 1.25)
+texture = ExtResource("2_bm_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=496292681]
+scale = Vector2(1.25, 1.25)
+shape = SubResource("CircleShape2D_body")
+
+[node name="HitReceivers" type="Node2D" parent="." unique_id=110172658]
+scale = Vector2(1.25, 1.25)
+
+[node name="BodyHurt" type="Area2D" parent="HitReceivers" unique_id=1713794366]
+scale = Vector2(1.25, 1.25)
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("3_ph")
+momentum_penalty = 0.35
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitReceivers/BodyHurt" unique_id=14259578]
+scale = Vector2(1.25, 1.25)
+shape = SubResource("CircleShape2D_hurt")
+
+[node name="WeakHurt" type="Area2D" parent="HitReceivers" unique_id=397867828]
+scale = Vector2(1.25, 1.25)
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("3_ph")
+hit_type = 1
+damage_multiplier = 2.0
+momentum_penalty = 0.15
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitReceivers/WeakHurt" unique_id=2141687615]
+position = Vector2(0, 40)
+scale = Vector2(1.25, 1.25)
+shape = SubResource("CircleShape2D_nose_weak")
+
+[node name="HitboxWeapon" type="Area2D" parent="HitReceivers" unique_id=120794512]
+scale = Vector2(1.25, 1.25)
+collision_layer = 64
+collision_mask = 32
+script = ExtResource("4_eh")
+damage = 25.0
+knockback_force = 550.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitReceivers/HitboxWeapon" unique_id=2083004269]
+scale = Vector2(1.25, 1.25)
+shape = SubResource("CircleShape2D_hitbox")
+
+[node name="BurrowParticles" type="CPUParticles2D" parent="." unique_id=31680288]
+scale = Vector2(1.25, 1.25)
+emitting = false
+amount = 26
+lifetime = 0.45
+one_shot = true
+explosiveness = 0.95
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 70.0
+initial_velocity_max = 150.0
+scale_amount_min = 4.0
+scale_amount_max = 8.0
+color = Color(0.42, 0.32, 0.22, 0.9)

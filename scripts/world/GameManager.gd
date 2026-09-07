@@ -5,12 +5,12 @@ signal gold_changed(new_amount: int)
 signal upgrade_purchased(upgrade_id: String, new_level: int)
 
 # Economia e Meta-Progressão (Persistente)
-var gold: int = 100 # Ouro inicial para testes
+var gold: int = 20 # Ouro inicial padrão (20 moedas)
 
 # Níveis e valores dos upgrades permanentes
 var upgrades: Dictionary = {
-	"max_health": {"level": 1, "base_cost": 50, "cost_mult": 1.5, "val_step": 20.0, "current_val": 100.0},
-	"engine_power": {"level": 1, "base_cost": 75, "cost_mult": 1.6, "val_step": 150.0, "current_val": 1400.0},
+	"charge_time": {"level": 1, "base_cost": 50, "cost_mult": 1.5, "val_step": -0.5, "current_val": 8.0},
+	"engine_power": {"level": 1, "base_cost": 75, "cost_mult": 1.6, "val_step": 40.0, "current_val": 150.0},
 	"base_damage": {"level": 1, "base_cost": 60, "cost_mult": 1.5, "val_step": 10.0, "current_val": 30.0},
 	"drift_traction": {"level": 1, "base_cost": 100, "cost_mult": 1.8, "val_step": 0.03, "current_val": 0.85}
 }
@@ -26,10 +26,19 @@ const TOWN_SCENE_PATH = "res://scenes/town/town.tscn"
 var player_scene = preload("res://scenes/entities/player.tscn")
 
 var current_phase: int = 1
+var boss_defeated_once: bool = false
+const BOSS_PHASE: int = 10 # Fase do Boss (Fase 10)
 
 var current_scene: Node
 
 func _ready() -> void:
+	# Instancia o Menu de Pause global
+	var pause_script = load("res://scripts/ui/pause_menu.gd")
+	if pause_script:
+		var pause_instance = CanvasLayer.new()
+		pause_instance.set_script(pause_script)
+		add_child(pause_instance)
+		
 	change_world(TOWN_SCENE_PATH)
 	
 func _process(delta: float) -> void:
@@ -43,9 +52,19 @@ func change_world(scene_path: String) -> void:
 	current_scene = load(scene_path).instantiate()
 	$World.add_child(current_scene)
 	
-	var spawn = current_scene.get_node("PlayerSpawn")
-	$Player.global_position = spawn.global_position
-	$Player.velocity = Vector2(0,0)
+	var spawn = current_scene.get_node_or_null("PlayerSpawn")
+	if spawn and has_node("Player"):
+		var target_pos = spawn.global_position
+		# Se for nível do boss (ex: BOSS_PHASE configurado na Arena), spawna 400px mais para baixo
+		var is_boss_level = ("BOSS_PHASE" in current_scene and current_phase == current_scene.BOSS_PHASE) \
+			or ("is_boss_battle" in current_scene and current_scene.is_boss_battle)
+		if is_boss_level:
+			target_pos.y += 400.0
+			
+		$Player.global_position = target_pos
+		$Player.velocity = Vector2.ZERO
+		if $Player.has_method("respawn"):
+			$Player.respawn()
 
 # Inicia a expedição limpando os dados da run anterior
 func start_run() -> void:
@@ -56,7 +75,7 @@ func start_run() -> void:
 
 # Retorno com sucesso (ex: passou pelo portal de extração)
 func end_run_success() -> void:
-	await get_tree().create_timer(5).timeout
+	await get_tree().create_timer(3.0).timeout
 	print("Passou de fase")
 	is_in_run = false
 	var total_earned = 0
@@ -72,21 +91,27 @@ func end_run_success() -> void:
 	current_phase += 1
 	change_world(TOWN_SCENE_PATH)
 
-# Retorno por morte (perde os itens da run atual)
+# Retorno por morte (perde os itens da run atual e reseta tudo para o início)
 func end_run_failure() -> void:
-	await get_tree().create_timer(5).timeout
 	is_in_run = false
 	current_run_loot.clear.call_deferred()
 	
 	# Reseta a fase ao morrer
 	current_phase = 1
-	gold = 100
-	var new_player = player_scene.instantiate()
-	add_child(new_player)
-	upgrades["max_health"]["current_val"] = new_player.max_health
-	upgrades["engine_power"]["current_val"] = new_player.engine_power
-	upgrades["base_damage"]["current_val"] = new_player.base_damage
-	upgrades["drift_traction"]["current_val"] = new_player.drift_traction
+	boss_defeated_once = false
+	gold = 20
+	gold_changed.emit(20)
+	
+	# Reseta o player para a configuração inicial completa (sem equipamentos, sem itens, vida cheia)
+	if has_node("Player") and $Player.has_method("reset_to_starting_state"):
+		$Player.reset_to_starting_state()
+	elif has_node("Player") and $Player.has_method("respawn"):
+		$Player.respawn()
+		
+	upgrades["charge_time"]["current_val"] = 8.0
+	upgrades["engine_power"]["current_val"] = 150.0
+	upgrades["base_damage"]["current_val"] = 30.0
+	upgrades["drift_traction"]["current_val"] = 0.85
 	change_world(TOWN_SCENE_PATH)
 
 func add_gold(amount: int) -> void:
@@ -116,3 +141,23 @@ func buy_upgrade(upgrade_id: String) -> bool:
 	
 	upgrade_purchased.emit(upgrade_id, data["level"])
 	return true
+
+func reset_game_to_menu() -> void:
+	is_in_run = false
+	current_run_loot.clear()
+	run_timer = 0.0
+	current_phase = 1
+	boss_defeated_once = false
+	gold = 20
+	
+	upgrades = {
+		"charge_time": {"level": 1, "base_cost": 50, "cost_mult": 1.5, "val_step": -0.5, "current_val": 8.0},
+		"engine_power": {"level": 1, "base_cost": 75, "cost_mult": 1.6, "val_step": 40.0, "current_val": 150.0},
+		"base_damage": {"level": 1, "base_cost": 60, "cost_mult": 1.5, "val_step": 10.0, "current_val": 30.0},
+		"drift_traction": {"level": 1, "base_cost": 100, "cost_mult": 1.8, "val_step": 0.03, "current_val": 0.85}
+	}
+	
+	if get_node_or_null("/root/AudioManager"):
+		AudioManager.play_main_menu_theme()
+		
+	get_tree().change_scene_to_file("res://weball/main_menu.tscn")

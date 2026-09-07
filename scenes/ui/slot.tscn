@@ -3,6 +3,18 @@
 [ext_resource type="Texture2D" uid="uid://bkp30ogd8bpi" path="res://assets/sprites/slot_inventario.png" id="1_jkamp"]
 [ext_resource type="Script" uid="uid://cei2y0m38vfqt" path="res://scripts/ui/slot.gd" id="1_sad2q"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sad2q"]
+bg_color = Color(0.012617188, 0.012617188, 0.012617188, 0.6745098)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.026433926, 0.026433926, 0.026433926, 0.8352941)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
 [node name="slot" type="Control" unique_id=1277440558]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 3
@@ -47,12 +59,17 @@ offset_bottom = -3.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="description" type="Label" parent="." unique_id=1884000582]
+[node name="description" type="PanelContainer" parent="." unique_id=1425387672]
 visible = false
 z_index = 1
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
+offset_right = 169.5
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_sad2q")
+
+[node name="label" type="Label" parent="description" unique_id=833508177]
+z_index = 1
+layout_mode = 2
 
 [connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]

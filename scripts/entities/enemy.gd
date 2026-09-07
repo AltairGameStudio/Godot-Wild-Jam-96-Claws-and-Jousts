@@ -4,15 +4,19 @@ extends CharacterBody2D
 signal enemy_died
 
 @export_group("Atributos")
-@export var max_health: float = 60.0
+@export var max_health: float = 90.0
 @export var move_speed: float = 120.0
 @export var turn_speed: float = 3.5
 @export var contact_damage: float = 15.0
-@export var knockback_multiplier: float = 1.2
+@export var knockback_multiplier: float = 4.0
 
 @export_group("Comportamento Orgânico")
 @export var wobble_frequency: float = 3.0    # Velocidade da oscilação
 @export var wobble_amplitude: float = 0.5    # Intensidade do desvio lateral (0.0 a 1.0)
+
+@export_group("Drops de Recompensa")
+@export var min_gold_drop: int = 1   # Quantidade mínima de ouro
+@export var max_gold_drop: int = 4  # Quantidade máxima de ouro
 
 @export var separation_strength: float = 60.0 # Força com que os inimigos se repelem
 @onready var separation_area: Area2D = $SeparationArea
@@ -26,6 +30,9 @@ var player_ref: Node2D = null
 @onready var health_bar: ProgressBar = $HealthBar
 
 var is_dead: bool = false
+var default_sprite_scale: Vector2 = Vector2.ONE
+var default_modulate: Color = Color.WHITE
+var hit_tween: Tween = null
 
 var drop = preload("res://scenes/ui/item.tscn")
 var items_can_drop = [2]
@@ -33,6 +40,11 @@ var chances_of_drop = [0.2]
 
 func _ready() -> void:
 	add_to_group("enemies")
+	
+	var sprite = get_node_or_null("Sprite2D")
+	if sprite:
+		default_sprite_scale = sprite.scale
+		default_modulate = sprite.modulate
 	
 	current_health = max_health
 	player_ref = get_tree().get_first_node_in_group("player") as Node2D
@@ -52,6 +64,10 @@ func _ready() -> void:
 	move_speed *= randf_range(0.9, 1.1)
 
 func _physics_process(delta: float) -> void:
+	if is_dead:
+		velocity = velocity.move_toward(Vector2.ZERO, 900.0 * delta)
+		move_and_slide()
+		return
 	_handle_ai_chase(delta)
 	move_and_slide()
 	# _check_body_collisions()
@@ -120,18 +136,19 @@ func _check_body_collisions() -> void:
 		var collider = col.get_collider()
 		if collider is Player:
 			var push_dir = (collider.global_position - global_position).normalized()
-			collider.take_damage(contact_damage, push_dir * 250.0)
+			collider.take_damage(contact_damage, push_dir * 500.0)
 
 func _update_healthbar_position() -> void:
 	if health_bar:
 		health_bar.global_position = global_position + Vector2(-health_bar.size.x / 2.0, 30.0)
 	
 func _on_hit_received(damage: float, direction: Vector2, hit_type: HitReceiver.HitType, impact_speed: float = 0.0) -> void:
+	play_hit_feedback(hit_type == HitReceiver.HitType.SHIELD)
 	match hit_type:
 		HitReceiver.HitType.SHIELD:
 			# Se acertar o escudo, empurra menos
 			AudioManager.play_sfx(AudioManager.SFX_SHIELD)
-			velocity += direction * (impact_speed * 0.4 + 100.0)
+			velocity += direction * (impact_speed * 0.8 + 200.0)
 		HitReceiver.HitType.WEAKSPOT, HitReceiver.HitType.NORMAL:
 			AudioManager.play_sfx(AudioManager.SFX_HIT)
 			current_health = maxf(0.0, current_health - damage)
@@ -143,16 +160,39 @@ func _on_hit_received(damage: float, direction: Vector2, hit_type: HitReceiver.H
 			if hit_type == HitReceiver.HitType.WEAKSPOT:
 				# Ponto fraco recebe 30% a mais de empurrão
 				knockback_force *= 1.3
+			if current_health <= 0.0:
+				# Impulso extra e violento na morte
+				knockback_force *= 1.35
 			
 			velocity += direction * knockback_force
 			
 			if current_health <= 0.0:
 				die()
 
+func play_hit_feedback(is_shield: bool = false) -> void:
+	var sprite = get_node_or_null("Sprite2D")
+	if not sprite:
+		return
+		
+	if hit_tween and hit_tween.is_valid():
+		hit_tween.kill()
+		
+	hit_tween = create_tween().set_parallel(true)
+	
+	# 1. Flash de Dano (Branco brilhante para carne, reflexo prateado para escudo)
+	sprite.modulate = Color(1.8, 1.8, 2.2, 1.0) if is_shield else Color(2.5, 2.5, 2.5, 1.0)
+	hit_tween.tween_property(sprite, "modulate", default_modulate, 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	
+	# 2. Deformação Elástica (Squash & Stretch)
+	var squashed = Vector2(default_sprite_scale.x * 0.8, default_sprite_scale.y * 1.3) if is_shield else Vector2(default_sprite_scale.x * 1.4, default_sprite_scale.y * 0.65)
+	sprite.scale = squashed
+	hit_tween.tween_property(sprite, "scale", default_sprite_scale, 0.22).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+
+
 func create_item() -> void:
-	var coin_lvl = randi_range(1,10)
+	var coin_amount = randi_range(min_gold_drop, max_gold_drop)
 	var coin_drop = drop.instantiate()
-	coin_drop.setup(100 + coin_lvl, self.global_position)
+	coin_drop.setup(100 + coin_amount, self.global_position)
 	get_tree().current_scene.get_node("World/Arena").add_child(coin_drop)
 	
 	for idx in range(items_can_drop.size()):
@@ -167,8 +207,25 @@ func create_item() -> void:
 func die() -> void:
 	# Se já morreu neste frame, não faz nada
 	if is_dead: return 
+	is_dead = true
 	AudioManager.play_sfx(AudioManager.SFX_IMPACT)
 	call_deferred("create_item")
-	is_dead = true
 	enemy_died.emit()
-	queue_free.call_deferred()
+	
+	# Desativa colisões para o inimigo ser arremessado livremente sem colidir no player
+	set_collision_layer_value(1, false)
+	set_collision_mask_value(1, false)
+	set_collision_layer_value(2, false)
+	set_collision_mask_value(2, false)
+	
+	if is_instance_valid(health_bar):
+		health_bar.visible = false
+		
+	var sprite = get_node_or_null("Sprite2D")
+	if sprite:
+		var death_tween = create_tween().set_parallel(true)
+		death_tween.tween_property(sprite, "modulate:a", 0.0, 0.20).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		death_tween.tween_property(sprite, "scale", sprite.scale * 1.3, 0.20).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		death_tween.chain().tween_callback(queue_free)
+	else:
+		queue_free.call_deferred()

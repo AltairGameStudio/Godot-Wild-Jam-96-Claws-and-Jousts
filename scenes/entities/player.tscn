@@ -4,8 +4,18 @@
 [ext_resource type="Texture2D" uid="uid://b5cbtb7hix63h" path="res://assets/sprites/entities/player_000.png" id="2_42nxq"]
 [ext_resource type="PackedScene" uid="uid://bajs8h6lhtgv5" path="res://scenes/ui/inventario.tscn" id="3_1ie0h"]
 [ext_resource type="Script" uid="uid://b8s0fexespo8o" path="res://scripts/ui/ui_canvas.gd" id="3_42nxq"]
+[ext_resource type="Texture2D" uid="uid://cqnk0l763lc3d" path="res://assets/sprites/player_lance.png" id="3_ss7kx"]
 [ext_resource type="PackedScene" uid="uid://c23ixdpvvncv7" path="res://scenes/ui/upgrade_shop.tscn" id="5_5u6hq"]
 [ext_resource type="Script" uid="uid://coj27neg8etam" path="res://scripts/ui/notification.gd" id="6_d4qa6"]
+[ext_resource type="Texture2D" uid="uid://d3pdaiwyrxdlv" path="res://assets/sprites/items/coin.png" id="8_saib0"]
+[ext_resource type="Texture2D" uid="uid://vkqhl3x2noyi" path="res://assets/sprites/items/lance.png" id="9_saib0"]
+[ext_resource type="Texture2D" uid="uid://c4k8l7vexfko4" path="res://assets/sprites/items/armor.png" id="10_ogpgs"]
+[ext_resource type="Texture2D" uid="uid://bgoxb4gch5miu" path="res://assets/sprites/items/cape.png" id="11_spk56"]
+[ext_resource type="Texture2D" uid="uid://bekms35j6usg0" path="res://assets/sprites/items/rein.png" id="12_1yk18"]
+[ext_resource type="Texture2D" uid="uid://rbjxqp4g7pjs" path="res://assets/sprites/items/horseshoe.png" id="13_b4o2o"]
+[ext_resource type="Texture2D" uid="uid://cme17ohbaulgi" path="res://assets/sprites/items/saddle.png" id="14_yr3on"]
+[ext_resource type="Script" uid="uid://6jr8e2psttx5" path="res://scripts/ui/player_hud.gd" id="15_spk56"]
+[ext_resource type="Texture2D" uid="uid://c0obk15o8xyu3" path="res://assets/sprites/blood_red_bar.png" id="16_1yk18"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dqkch"]
 radius = 25.019993
@@ -14,6 +24,13 @@ radius = 25.019993
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_qhqgy"]
 radius = 28.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b4o2o"]
+bg_color = Color(0, 0, 0, 1)
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_spk56"]
 
 [sub_resource type="Gradient" id="Gradient_42nxq"]
 interpolation_mode = 2
@@ -35,19 +52,45 @@ script = ExtResource("1_g2els")
 engine_power = 150.0
 max_speed = 300.0
 min_charge_speed = 200.0
-base_damage = 30.0
 damage_velocity_scale = 0.1
-bounce_ratio = 0.3
+bounce_force = 90.0
+charge_time_to_fill = 8.0
+dash_duration = 2.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1024225290]
 rotation = 1.5707964
 texture = ExtResource("2_42nxq")
+metadata/_aseprite_wizard_interface_config_ = {
+"animation_section": true,
+"layer_section": true,
+"output_section": true,
+"pending_changes": {
+"convert_fps_field": 60.0,
+"convert_ms_field": 16.0,
+"convert_to_fps": false,
+"embed_tex": true,
+"i_mode": 0,
+"keep_anim_length": false,
+"layers": [],
+"o_ex_p": "",
+"o_folder": "",
+"o_name": "",
+"only_visible": false,
+"player": "",
+"scale": "1.0",
+"slice": "",
+"source": "",
+"source_uid": -1
+},
+"slice_section": true
+}
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=783048376]
 position = Vector2(-12, 9)
 shape = SubResource("CircleShape2D_dqkch")
 
 [node name="GPUParticles2D" type="GPUParticles2D" parent="." unique_id=103844479]
+use_parent_material = true
 position = Vector2(-0.5, 12.5)
 
 [node name="LancePivot" type="Node2D" parent="." unique_id=1176067835]
@@ -60,9 +103,71 @@ collision_mask = 16
 position = Vector2(10, -51)
 shape = SubResource("RectangleShape2D_g2els")
 
+[node name="LanceSprite" type="TextureRect" parent="LancePivot/LanceArea" unique_id=1864573563]
+offset_left = 17.0
+offset_top = -60.0
+offset_right = 59.0
+offset_bottom = -20.0
+rotation = 1.5630345
+scale = Vector2(1.0015278, 0.335406)
+texture = ExtResource("3_ss7kx")
+
+[node name="LanceLight" type="PointLight2D" parent="LancePivot/LanceArea" unique_id=1864573564]
+position = Vector2(10, -65)
+color = Color(1, 0.85098, 0.45098, 1)
+energy = 0.6
+texture = SubResource("GradientTexture2D_5u6hq")
+texture_scale = 1.6
+
+[node name="ImpactParticles" type="CPUParticles2D" parent="LancePivot/LanceArea" unique_id=1864573565]
+position = Vector2(10, -65)
+emitting = false
+amount = 16
+lifetime = 0.22
+one_shot = true
+explosiveness = 0.9
+spread = 70.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 140.0
+initial_velocity_max = 260.0
+scale_amount_min = 2.0
+scale_amount_max = 4.0
+color = Color(1, 0.85, 0.35, 1)
+
+[node name="DriftParticles" type="CPUParticles2D" parent="." unique_id=1864573566]
+position = Vector2(-12, 28)
+emitting = false
+amount = 14
+lifetime = 0.3
+direction = Vector2(0, 1)
+spread = 40.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 35.0
+initial_velocity_max = 75.0
+scale_amount_min = 2.5
+scale_amount_max = 5.0
+color = Color(0.482353, 0.4, 0.278431, 0.7)
+
+[node name="SpeedParticles" type="CPUParticles2D" parent="." unique_id=1864573567]
+position = Vector2(-12, 0)
+emitting = false
+amount = 12
+lifetime = 0.2
+emission_shape = 3
+emission_sphere_radius = 24.0
+direction = Vector2(0, 1)
+spread = 8.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 100.0
+initial_velocity_max = 220.0
+scale_amount_min = 1.5
+scale_amount_max = 3.0
+color = Color(1, 1, 1, 0.55)
+
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1343793477]
-position_smoothing_enabled = true
-position_smoothing_speed = 4.0
+position = Vector2(-12, 9)
+position_smoothing_enabled = false
+zoom = Vector2(1.1, 1.1)
 
 [node name="HurtboxArea" type="Area2D" parent="." unique_id=109100208]
 collision_layer = 32
@@ -98,6 +203,258 @@ grow_horizontal = 0
 grow_vertical = 0
 alignment = 2
 script = ExtResource("6_d4qa6")
+
+[node name="equipment" type="GridContainer" parent="PlayerCanvas" unique_id=1862478262]
+offset_left = 24.0
+offset_top = 75.0
+offset_right = 84.0
+offset_bottom = 455.0
+
+[node name="coin" type="Control" parent="PlayerCanvas/equipment" unique_id=1210669036]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+
+[node name="sprite" type="TextureRect" parent="PlayerCanvas/equipment/coin" unique_id=1860813282]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("8_saib0")
+expand_mode = 2
+
+[node name="quantity" type="Label" parent="PlayerCanvas/equipment/coin" unique_id=1084372563]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(14.412492, 14.197381, 0.60580194, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="lance" type="Control" parent="PlayerCanvas/equipment" unique_id=124396376]
+modulate = Color(1, 1, 1, 0.49411765)
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+
+[node name="sprite" type="TextureRect" parent="PlayerCanvas/equipment/lance" unique_id=244516550]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("9_saib0")
+expand_mode = 2
+
+[node name="lvl" type="Label" parent="PlayerCanvas/equipment/lance" unique_id=750919915]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(14.412492, 14.197381, 0.60580194, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="armor" type="Control" parent="PlayerCanvas/equipment" unique_id=1950083348]
+modulate = Color(1, 1, 1, 0.49411765)
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+
+[node name="sprite" type="TextureRect" parent="PlayerCanvas/equipment/armor" unique_id=100739256]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("10_ogpgs")
+expand_mode = 2
+
+[node name="lvl" type="Label" parent="PlayerCanvas/equipment/armor" unique_id=1992322503]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(14.412492, 14.197381, 0.60580194, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.99215686)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="cape" type="Control" parent="PlayerCanvas/equipment" unique_id=468931578]
+modulate = Color(1, 1, 1, 0.49411765)
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+
+[node name="sprite" type="TextureRect" parent="PlayerCanvas/equipment/cape" unique_id=1568840102]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("11_spk56")
+
+[node name="lvl" type="Label" parent="PlayerCanvas/equipment/cape" unique_id=1951167318]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(14.412492, 14.197381, 0.60580194, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.99215686)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="rein" type="Control" parent="PlayerCanvas/equipment" unique_id=101949181]
+modulate = Color(1, 1, 1, 0.49411765)
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+
+[node name="sprite" type="TextureRect" parent="PlayerCanvas/equipment/rein" unique_id=2016565502]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("12_1yk18")
+
+[node name="lvl" type="Label" parent="PlayerCanvas/equipment/rein" unique_id=647137581]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(14.412492, 14.197381, 0.60580194, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.99215686)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="horseshoe" type="Control" parent="PlayerCanvas/equipment" unique_id=1702807820]
+modulate = Color(1, 1, 1, 0.49411765)
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+
+[node name="sprite" type="TextureRect" parent="PlayerCanvas/equipment/horseshoe" unique_id=1360468553]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("13_b4o2o")
+
+[node name="lvl" type="Label" parent="PlayerCanvas/equipment/horseshoe" unique_id=431851938]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(14.412492, 14.197381, 0.60580194, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.99215686)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="saddle" type="Control" parent="PlayerCanvas/equipment" unique_id=1074747345]
+modulate = Color(1, 1, 1, 0.49411765)
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+
+[node name="sprite" type="TextureRect" parent="PlayerCanvas/equipment/saddle" unique_id=628918578]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("14_yr3on")
+
+[node name="lvl" type="Label" parent="PlayerCanvas/equipment/saddle" unique_id=298693418]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(14.412492, 14.197381, 0.60580194, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.99215686)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HealthBarContainer" type="Control" parent="PlayerCanvas" unique_id=902970055]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("15_spk56")
+
+[node name="HealthSprite" type="TextureRect" parent="PlayerCanvas/HealthBarContainer" unique_id=2101347910]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 21.0
+offset_right = 324.0
+offset_bottom = 61.0
+texture = ExtResource("16_1yk18")
+
+[node name="DamageMask" type="Panel" parent="PlayerCanvas/HealthBarContainer" unique_id=1815392444]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 29.0
+offset_right = 316.0
+offset_bottom = 53.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_b4o2o")
+
+[node name="HealMask" type="Panel" parent="PlayerCanvas/HealthBarContainer" unique_id=1040018102]
+modulate = Color(17.413149, 0, 0, 1)
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 0
+offset_left = 32.0
+offset_top = 30.0
+offset_right = 72.0
+offset_bottom = 70.0
+scale = Vector2(0.9620969, 0.5725455)
+theme_override_styles/panel = SubResource("StyleBoxFlat_spk56")
 
 [node name="PointLight2D" type="PointLight2D" parent="." unique_id=1437981006]
 texture_filter = 1

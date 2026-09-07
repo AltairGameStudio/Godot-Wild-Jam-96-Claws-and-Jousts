@@ -25,31 +25,31 @@ script = ExtResource("1_ms2kk")
 layout_mode = 2
 texture = ExtResource("2_15oxs")
 
-[node name="max_health_container" type="Control" parent="background" unique_id=392287970]
+[node name="charge_time_container" type="Control" parent="background" unique_id=392287970]
 anchors_preset = 0
 offset_left = 65.0
 offset_top = 74.5
 offset_right = 643.0
 offset_bottom = 74.5
 
-[node name="mh_label1" type="Label" parent="background/max_health_container" unique_id=419669867]
+[node name="mh_label1" type="Label" parent="background/charge_time_container" unique_id=419669867]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 0
 offset_left = 8.0
 offset_right = 192.0
 offset_bottom = 30.0
 size_flags_vertical = 0
-text = "Increase max health in"
+text = "Reduce dash charge time by   "
 
-[node name="step_val" type="Label" parent="background/max_health_container" unique_id=863637361]
+[node name="step_val" type="Label" parent="background/charge_time_container" unique_id=863637361]
 custom_minimum_size = Vector2(50, 30)
 layout_mode = 1
-offset_left = 192.0
-offset_right = 242.0
+offset_left = 232.0
+offset_right = 282.0
 offset_bottom = 30.0
 size_flags_vertical = 0
 
-[node name="max_health" type="Control" parent="background/max_health_container" unique_id=1201121058]
+[node name="charge_time" type="Control" parent="background/charge_time_container" unique_id=1201121058]
 custom_minimum_size = Vector2(120, 50)
 layout_direction = 2
 anchors_preset = 0
@@ -61,7 +61,7 @@ size_flags_horizontal = 8
 size_flags_vertical = 0
 script = ExtResource("3_15oxs")
 
-[node name="buy_button" type="TextureRect" parent="background/max_health_container/max_health" unique_id=706471711]
+[node name="buy_button" type="TextureRect" parent="background/charge_time_container/charge_time" unique_id=706471711]
 custom_minimum_size = Vector2(120, 30)
 layout_mode = 1
 anchors_preset = 8
@@ -79,7 +79,7 @@ texture = ExtResource("3_3by1d")
 expand_mode = 1
 flip_v = true
 
-[node name="buy_text" type="Label" parent="background/max_health_container/max_health" unique_id=913574291]
+[node name="buy_text" type="Label" parent="background/charge_time_container/charge_time" unique_id=913574291]
 custom_minimum_size = Vector2(100, 30)
 layout_mode = 1
 anchors_preset = 8
@@ -97,7 +97,7 @@ text = "Buy"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="mh_label2" type="Label" parent="background/max_health_container" unique_id=2042411849]
+[node name="mh_label2" type="Label" parent="background/charge_time_container" unique_id=2042411849]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 0
 offset_left = 8.0
@@ -107,7 +107,7 @@ offset_bottom = 60.0
 size_flags_vertical = 0
 text = "Cost:"
 
-[node name="cost" type="Label" parent="background/max_health_container" unique_id=283323339]
+[node name="cost" type="Label" parent="background/charge_time_container" unique_id=283323339]
 custom_minimum_size = Vector2(50, 30)
 layout_mode = 1
 offset_left = 48.0
@@ -389,7 +389,7 @@ offset_right = 98.0
 offset_bottom = 60.0
 size_flags_vertical = 0
 
-[connection signal="gui_input" from="background/max_health_container/max_health" to="background/max_health_container/max_health" method="_on_gui_input"]
+[connection signal="gui_input" from="background/charge_time_container/charge_time" to="background/charge_time_container/charge_time" method="_on_gui_input"]
 [connection signal="gui_input" from="background/engine_power_container/engine_power" to="background/engine_power_container/engine_power" method="_on_gui_input"]
 [connection signal="gui_input" from="background/base_damage_container/base_damage" to="background/base_damage_container/base_damage" method="_on_gui_input"]
 [connection signal="gui_input" from="background/drift_traction_container/drift_traction" to="background/drift_traction_container/drift_traction" method="_on_gui_input"]

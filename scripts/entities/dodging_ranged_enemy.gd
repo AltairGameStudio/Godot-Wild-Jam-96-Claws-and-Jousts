@@ -16,7 +16,7 @@ signal enemy_died
 @export var move_speed: float = 95.0
 @export var turn_speed: float = 4.5
 @export var stop_distance: float = 260.0
-@export var knockback_multiplier: float = 1.2
+@export var knockback_multiplier: float = 4.0
 
 @export_group("Esquiva / Dash Reativo")
 @export var dodge_trigger_distance: float = 220.0     # Distância em que percebe o ataque
@@ -36,6 +36,12 @@ signal enemy_died
 @export var strafe_speed_ratio: float = 0.8
 @export var separation_strength: float = 60.0
 
+@export_group("Drops de Recompensa")
+@export var min_gold_drop: int = 21
+@export var max_gold_drop: int = 24
+var items_can_drop = [5, 7]        # Tipos de itens que esse arqueiro pode dropar (ex: Rédea e Sela)
+var chances_of_drop = [0.25, 0.15] # 25% de chance para o primeiro, 15% para o segundo
+
 @onready var separation_area: Area2D = $SeparationArea
 @onready var health_bar: ProgressBar = $HealthBar
 @onready var shoot_point: Marker2D = $ShootPoint
@@ -45,6 +51,9 @@ signal enemy_died
 var current_health: float
 var player_ref: Node2D = null
 var is_dead: bool = false
+var default_sprite_scale: Vector2 = Vector2.ONE
+var default_modulate: Color = Color.WHITE
+var hit_tween: Tween = null
 
 var strafe_direction: float = 1.0
 var strafe_change_timer: float = 0.0
@@ -61,8 +70,11 @@ func _ready() -> void:
 	current_health = max_health
 	player_ref = get_tree().get_first_node_in_group("player") as Node2D
 	
-	if enemy_sprite and sprite_idle:
-		enemy_sprite.texture = sprite_idle
+	if enemy_sprite:
+		default_sprite_scale = enemy_sprite.scale
+		default_modulate = enemy_sprite.modulate
+		if sprite_idle:
+			enemy_sprite.texture = sprite_idle
 	
 	if health_bar:
 		health_bar.max_value = max_health
@@ -82,6 +94,11 @@ func _ready() -> void:
 	strafe_change_timer = randf_range(1.5, 3.0)
 
 func _physics_process(delta: float) -> void:
+	if is_dead:
+		velocity = velocity.move_toward(Vector2.ZERO, 900.0 * delta)
+		move_and_slide()
+		return
+
 	if dodge_cooldown > 0.0:
 		dodge_cooldown -= delta
 
@@ -224,22 +241,50 @@ func _update_healthbar_position() -> void:
 		health_bar.global_position = global_position + Vector2(-health_bar.size.x / 2.0, -30.0)
 
 func create_item() -> void:
-	for i in range(1, 6):
-		var new_drop = drop.instantiate()
-		new_drop.setup(i * 100, self.global_position)
-		get_tree().current_scene.add_child(new_drop)
+	var coin_amount = randi_range(min_gold_drop, max_gold_drop)
+	var coin_drop = drop.instantiate()
+	coin_drop.setup(100 + coin_amount, self.global_position)
+	get_tree().current_scene.get_node("World/Arena").add_child(coin_drop)
+	
+	# Drop de Equipamento com chance e nível aleatório
+	for idx in range(items_can_drop.size()):
+		if randf() <= chances_of_drop[idx]:
+			var idx_drop = drop.instantiate()
+			var idx_lvl = randi_range(1, 5) # Nível aleatório entre 1 e 5
+			var offset = Vector2(randi_range(-10, 10), randi_range(-10, 10))
+			idx_drop.setup(items_can_drop[idx] * 100 + idx_lvl, self.global_position + offset)
+			get_tree().current_scene.get_node("World/Arena").add_child(idx_drop)
+			return
 
 func die() -> void:
 	if is_dead: return 
-	call_deferred("create_item")
 	is_dead = true
+	AudioManager.play_sfx(AudioManager.SFX_IMPACT)
+	call_deferred("create_item")
 	enemy_died.emit()
-	queue_free.call_deferred()
+	
+	set_collision_layer_value(1, false)
+	set_collision_mask_value(1, false)
+	set_collision_layer_value(2, false)
+	set_collision_mask_value(2, false)
+	
+	if is_instance_valid(health_bar):
+		health_bar.visible = false
+		
+	var sprite = enemy_sprite
+	if sprite:
+		var death_tween = create_tween().set_parallel(true)
+		death_tween.tween_property(sprite, "modulate:a", 0.0, 0.20).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		death_tween.tween_property(sprite, "scale", sprite.scale * 1.3, 0.20).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		death_tween.chain().tween_callback(queue_free)
+	else:
+		queue_free.call_deferred()
 
 func _on_hit_received(damage: float, direction: Vector2, hit_type: HitReceiver.HitType, impact_speed: float = 0.0) -> void:
+	play_hit_feedback(hit_type == HitReceiver.HitType.SHIELD)
 	match hit_type:
 		HitReceiver.HitType.SHIELD:
-			velocity += direction * (impact_speed * 0.4 + 100.0)
+			velocity += direction * (impact_speed * 0.8 + 200.0)
 		HitReceiver.HitType.WEAKSPOT, HitReceiver.HitType.NORMAL:
 			AudioManager.play_sfx(AudioManager.SFX_HIT)
 			current_health = maxf(0.0, current_health - damage)
@@ -249,8 +294,26 @@ func _on_hit_received(damage: float, direction: Vector2, hit_type: HitReceiver.H
 				var knockback_force = impact_speed * knockback_multiplier
 				if hit_type == HitReceiver.HitType.WEAKSPOT:
 					knockback_force *= 1.3
+				if current_health <= 0.0:
+					knockback_force *= 1.35
 				
 				velocity += direction * knockback_force
 				
 				if current_health <= 0.0:
 					die()
+
+func play_hit_feedback(is_shield: bool = false) -> void:
+	if not enemy_sprite:
+		return
+		
+	if hit_tween and hit_tween.is_valid():
+		hit_tween.kill()
+		
+	hit_tween = create_tween().set_parallel(true)
+	
+	enemy_sprite.modulate = Color(1.8, 1.8, 2.2, 1.0) if is_shield else Color(2.5, 2.5, 2.5, 1.0)
+	hit_tween.tween_property(enemy_sprite, "modulate", default_modulate, 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	
+	var squashed = Vector2(default_sprite_scale.x * 0.8, default_sprite_scale.y * 1.3) if is_shield else Vector2(default_sprite_scale.x * 1.4, default_sprite_scale.y * 0.65)
+	enemy_sprite.scale = squashed
+	hit_tween.tween_property(enemy_sprite, "scale", default_sprite_scale, 0.22).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)

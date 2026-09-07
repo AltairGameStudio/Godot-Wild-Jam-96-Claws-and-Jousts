@@ -9,7 +9,7 @@
 collision_layer = 2
 collision_mask = 35
 script = ExtResource("1_80udl")
-damage = 20.0
+damage = 10.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=520770565]
 scale = Vector2(0.15234376, 0.14648438)

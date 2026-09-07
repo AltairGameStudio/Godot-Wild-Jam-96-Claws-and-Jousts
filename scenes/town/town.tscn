@@ -10124,7 +10124,6 @@ offset_right = 913.0
 offset_bottom = 531.0
 
 [node name="ObjectiveLabel" type="Label" parent="TownHUD/UI" unique_id=1375494433]
-visible = false
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5

@@ -33,9 +33,27 @@ scale = Vector2(2.0399988, 1.9999998)
 collision_layer = 4
 collision_mask = 7
 script = ExtResource("1_qcu1j")
+sprite_idle = null
+sprite_jumping = null
+max_health = null
+move_speed = null
+turn_speed = null
+stop_distance = null
+knockback_multiplier = null
 dodge_trigger_distance = 320.0
+min_player_speed_trigger = null
 dodge_speed = 400.0
+dodge_duration = null
+dodge_cooldown_time = null
 bullet_scene = ExtResource("2_eakh8")
+min_shoot_interval = null
+max_shoot_interval = null
+shoot_spread_degrees = null
+retreat_distance = null
+strafe_speed_ratio = null
+separation_strength = null
+min_gold_drop = null
+max_gold_drop = null
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2044408994]
 position = Vector2(8.34465e-07, -1)

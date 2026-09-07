@@ -6,6 +6,7 @@ var equip_sprite = null
 
 func set_empty_slot() -> void:
 	$sprite.texture = null
+	$sprite.modulate = Color.WHITE
 	self.id = 0
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
@@ -16,6 +17,8 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	preview.custom_minimum_size = Vector2(48, 48)
 	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	if id % 100 == 11:
+		preview.modulate = Color(0.65, 1.25, 0.85)
 	set_drag_preview(preview)
 	$sprite.visible = false
 	return self
@@ -61,7 +64,9 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	if !(data is buy_slot):
 		data.get_node("sprite").visible = true
 		data.get_node("amount").visible = true
+	$sprite.modulate = Color(0.65, 1.25, 0.85) if (self.id % 100 == 11) else Color.WHITE
 	get_tree().call_group("player", "equipment_changed", self.id, true)
+	slot_value = data.slot_value
 
 func return_to_inventory(new_item_id) -> bool:
 	var empty = null
@@ -72,6 +77,8 @@ func return_to_inventory(new_item_id) -> bool:
 			var new_amount = int(inv_slot.get_node("amount").text)
 			new_amount += 1
 			inv_slot.get_node("amount").text = str(new_amount)
+			if inv_slot.has_method("_update_visual"):
+				inv_slot._update_visual()
 			return true 
 		elif inv_slot.id == 0 and empty == null:
 			empty = inv_slot
@@ -79,5 +86,7 @@ func return_to_inventory(new_item_id) -> bool:
 		empty.get_node("sprite").texture = equip_sprite
 		empty.get_node("amount").text = "1"
 		empty.id = new_item_id
+		if empty.has_method("_update_visual"):
+			empty._update_visual()
 		return true
 	return false

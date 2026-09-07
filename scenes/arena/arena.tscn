@@ -5,7 +5,6 @@
 [ext_resource type="Texture2D" uid="uid://df8qt5j2c3tet" path="res://assets/sprites/tilesets/grass-tile-tileset-frame0.png" id="3_2ml6w"]
 [ext_resource type="PackedScene" uid="uid://dgrlk0mye5q7l" path="res://scenes/entities/ranged_enemy.tscn" id="3_xgbxb"]
 [ext_resource type="PackedScene" uid="uid://dvqhvpv3ui8q0" path="res://scenes/entities/tar_enemy.tscn" id="4_fv88w"]
-[ext_resource type="Script" uid="uid://6jr8e2psttx5" path="res://scripts/ui/player_hud.gd" id="4_u52cf"]
 [ext_resource type="Texture2D" uid="uid://d1bxenhu7ropx" path="res://assets/sprites/tilesets/swamp-tileset-frame0.png" id="4_xgbxb"]
 [ext_resource type="Texture2D" uid="uid://cwfmuvlk33ei6" path="res://assets/sprites/tilesets/grass-water-tileset-frame0.png" id="5_vmsrg"]
 [ext_resource type="PackedScene" uid="uid://7d5t1q2dmnct" path="res://scenes/entities/heavy_enemy.tscn" id="5_w4nra"]
@@ -15,9 +14,9 @@
 [ext_resource type="Texture2D" uid="uid://by85axt801wa7" path="res://assets/sprites/tilesets/grasslol.png" id="7_fv88w"]
 [ext_resource type="PackedScene" uid="uid://vo75vtnxe4sn" path="res://scenes/entities/dodging_ranged_enemy.tscn" id="11_xgbxb"]
 [ext_resource type="Texture2D" uid="uid://wdhhrc0n8620" path="res://assets/sprites/tilesheet_complete.png" id="13_tp84n"]
-[ext_resource type="Texture2D" uid="uid://c0obk15o8xyu3" path="res://assets/sprites/blood_red_bar.png" id="15_8kk48"]
 [ext_resource type="Script" uid="uid://cw6ef5j7sruiu" path="res://scripts/arena/forest_ring.gd" id="15_t3vx8"]
 [ext_resource type="Texture2D" uid="uid://b4ad7s0y55y8d" path="res://assets/sprites/tree_2.png" id="16_rhjlh"]
+[ext_resource type="Texture2D" uid="uid://bqhpm2mdmtiyy" path="res://assets/sprites/charge_lance.png" id="16_wqbss"]
 [ext_resource type="Script" uid="uid://bibnrli0s70wu" path="res://scripts/arena/swamp_scatter.gd" id="17_rhjlh"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_w4nra"]
@@ -1172,10 +1171,15 @@ sources/5 = SubResource("TileSetAtlasSource_gy0qm")
 pattern_0 = SubResource("TileMapPattern_w4nra")
 pattern_1 = SubResource("TileMapPattern_t3vx8")
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8kk48"]
-bg_color = Color(0, 0, 0, 1)
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
+[sub_resource type="Gradient" id="Gradient_wqbss"]
+offsets = PackedFloat32Array(0, 0.04918033, 1)
+colors = PackedColorArray(0.95628417, 0.95628417, 0.95628417, 1, 1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_fir7s"]
+gradient = SubResource("Gradient_wqbss")
+fill = 1
+fill_from = Vector2(0.51282054, 0.45299146)
+fill_to = Vector2(0.9273504, 0.7008547)
 
 [node name="Arena" type="Node2D" unique_id=49824254]
 z_as_relative = false
@@ -1193,7 +1197,6 @@ tile_set = SubResource("TileSet_gy0qm")
 position = Vector2(896, 512)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=434009101]
-script = ExtResource("4_u52cf")
 
 [node name="UI" type="Control" parent="CanvasLayer" unique_id=47074319]
 layout_mode = 3
@@ -1211,30 +1214,66 @@ offset_top = 64.0
 offset_right = 960.0
 offset_bottom = 109.0
 grow_horizontal = 2
+theme_override_colors/font_color = Color(0.9490196, 0.8509804, 0.6509804, 1)
 theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 48
 text = "60s"
 
-[node name="HealthBarContainer" type="Control" parent="CanvasLayer/UI" unique_id=1010999941]
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="ChargeContainer" type="Control" parent="CanvasLayer/UI" unique_id=177486562]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 333.0
+offset_top = 4.0
+offset_right = 373.0
+offset_bottom = 44.0
+grow_horizontal = 2
+grow_vertical = 2
+rotation = 6.2831855
 
-[node name="HealthSprite" type="TextureRect" parent="CanvasLayer/UI/HealthBarContainer" unique_id=646439688]
-layout_mode = 0
-offset_left = 24.0
-offset_top = 21.0
-offset_right = 324.0
-offset_bottom = 61.0
-texture = ExtResource("15_8kk48")
+[node name="light" type="PointLight2D" parent="CanvasLayer/UI/ChargeContainer" unique_id=592993775]
+visible = false
+position = Vector2(143, 20.999975)
+scale = Vector2(-4.3265266, 1.0440663)
+energy = 2.05
+texture = SubResource("GradientTexture2D_fir7s")
 
-[node name="DamageMask" type="Panel" parent="CanvasLayer/UI/HealthBarContainer" unique_id=180482751]
+[node name="LanceProgress" type="TextureProgressBar" parent="CanvasLayer/UI/ChargeContainer" unique_id=363941286]
+modulate = Color(1, 1, 1, 0.5019608)
 layout_mode = 0
-offset_left = 32.0
-offset_top = 29.0
-offset_right = 316.0
-offset_bottom = 53.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_8kk48")
+offset_left = 283.0
+offset_top = 39.99995
+offset_right = 562.0
+offset_bottom = 79.999954
+rotation = 3.1415927
+max_value = 1.0
+step = 0.01
+fill_mode = 1
+texture_under = ExtResource("16_wqbss")
+texture_progress = ExtResource("16_wqbss")
+tint_under = Color(1, 1, 1, 0.3019608)
+
+[node name="Label" type="Label" parent="CanvasLayer/UI/ChargeContainer" unique_id=1878212710]
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 74.0
+offset_top = -38.00001
+offset_right = 180.0
+offset_bottom = -3.0000114
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 25
+text = "Press SHIFT!"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="EnemyIndicators" type="Control" parent="CanvasLayer" unique_id=234991851]
 layout_mode = 3
@@ -1263,7 +1302,7 @@ size_flags_vertical = 3
 
 [node name="TitleLabel" type="Label" parent="CanvasLayer/AnnouncementContainer" unique_id=313062135]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(0.9490196, 0.8509804, 0.6509804, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 56
 horizontal_alignment = 1
