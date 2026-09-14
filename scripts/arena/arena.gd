@@ -2,8 +2,8 @@ extends Node2D
 
 @export_group("Configurações da Rodada")
 @export var round_duration: float = 60.0           # Duração total da rodada em segundos
-@export var min_spawn_interval: float = 4.0        # Tempo mínimo entre spawns
-@export var max_spawn_interval: float = 5.0        # Tempo máximo entre spawns
+@export var min_spawn_interval: float = 8.0        # Tempo mínimo entre spawns
+@export var max_spawn_interval: float = 12.0        # Tempo máximo entre spawns
 @export var min_distance_from_player: float = 380.0 # Distância mínima para não spawnar colado no player
 
 @export_group("Limites da Arena para Spawn")

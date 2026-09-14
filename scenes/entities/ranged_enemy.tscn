@@ -38,6 +38,8 @@ bullet_scene = ExtResource("2_l7eqa")
 min_shoot_interval = 2.5
 max_shoot_interval = 3.5
 shoot_spread_degrees = 24.0
+min_gold_drop = 3
+max_gold_drop = 4
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2044408994]
 position = Vector2(0, -1)

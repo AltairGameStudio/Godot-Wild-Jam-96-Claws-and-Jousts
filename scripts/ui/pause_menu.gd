@@ -124,7 +124,7 @@ func _build_controls_modal() -> void:
     COMBAT MECHANICS:
     Build up speed to lower and charge your lance!
     The faster you strike enemies, the more damage you deal.
-    Charge at top speed for maximum impact!"""
+	Charge at top speed for maximum impact!"""
 	
 	controls_modal.add_child(text)
 

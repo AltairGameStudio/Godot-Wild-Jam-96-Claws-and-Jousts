@@ -39,6 +39,7 @@ script = ExtResource("1_5vdvj")
 max_health = 35.0
 move_speed = 100.0
 knockback_multiplier = 1.0
+max_gold_drop = 2
 separation_strength = 30.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2044408994]

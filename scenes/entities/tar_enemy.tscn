@@ -28,6 +28,8 @@ script = ExtResource("1_dyacx")
 max_health = 75.0
 flee_distance = 400.0
 tar_puddle_scene = ExtResource("2_e3c7r")
+min_gold_drop = 7
+max_gold_drop = 8
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2105691930]
 position = Vector2(0, -0.9999962)

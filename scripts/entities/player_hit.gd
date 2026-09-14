@@ -27,4 +27,3 @@ func process_hit(incoming_damage: float, hit_direction: Vector2, impact_speed: f
 		"killed": is_killed,
 		"target": enemy_entity
 	}
-
