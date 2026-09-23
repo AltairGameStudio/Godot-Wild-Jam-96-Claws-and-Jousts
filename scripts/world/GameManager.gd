@@ -63,8 +63,8 @@ func change_world(scene_path: String) -> void:
 			
 		$Player.global_position = target_pos
 		$Player.velocity = Vector2.ZERO
-		if $Player.has_method("respawn"):
-			$Player.respawn()
+		# if $Player.has_method("respawn"):
+		# 	$Player.respawn()
 
 # Inicia a expedição limpando os dados da run anterior
 func start_run() -> void:

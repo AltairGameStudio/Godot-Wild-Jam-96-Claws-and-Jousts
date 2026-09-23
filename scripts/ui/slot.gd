@@ -53,7 +53,7 @@ func _calc_slot_value(item_id: int, quantity: int) -> int:
 	if not item_value.has(it):
 		return 0
 	var mult = 20 if (lvl == 11) else lvl
-	return int(((mult * item_value[it]) * 2.0 / 3.0) * quantity)
+	return int(((mult * item_value[it]) * 0.5) * quantity)
 
 func _process(_delta: float) -> void:
 	if $description.visible:

@@ -40,6 +40,7 @@ scale = Vector2(1.9999993, 2)
 collision_layer = 4
 collision_mask = 7
 script = ExtResource("1_puwww")
+max_health = 60.0
 contact_damage = 20.0
 knockback_multiplier = 0.7
 min_gold_drop = 5

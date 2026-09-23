@@ -8,7 +8,7 @@ var item_type = 0
 func _ready() -> void:
 	item_type = int(name)
 	item_cost = item_value[item_type]
-	slot_value = int(item_cost*2.0/3.0)
+	slot_value = int(item_cost*0.5)
 	id = 100*item_type+item_lvl
 	$cost.text = str(item_cost)
 
@@ -62,7 +62,7 @@ func on_lvl_up() -> void:
 	else:
 		item_cost = item_value[item_type] * item_lvl
 		$sprite.modulate = Color.WHITE
-	slot_value = int(item_cost * 2.0 / 3.0)
+	slot_value = int(item_cost * 0.5)
 	$cost.text = str(item_cost)
 
 func on_lvl_down() -> void:
@@ -76,5 +76,5 @@ func on_lvl_down() -> void:
 	else:
 		item_cost = item_value[item_type] * item_lvl
 		$sprite.modulate = Color.WHITE
-	slot_value = int(item_cost * 2.0 / 3.0)
+	slot_value = int(item_cost * 0.5)
 	$cost.text = str(item_cost)
