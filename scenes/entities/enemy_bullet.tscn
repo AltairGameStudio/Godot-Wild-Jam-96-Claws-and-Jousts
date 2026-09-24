@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://bcpxwt5ovyq1c"]
 
 [ext_resource type="Script" uid="uid://djacvgy1kp23m" path="res://scripts/entities/enemy_bullet.gd" id="1_80udl"]
-[ext_resource type="Texture2D" uid="uid://bye0cvh0k0uma" path="res://icon.svg" id="2_t0ygs"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_smrj6"]
 
@@ -10,10 +9,6 @@ collision_layer = 2
 collision_mask = 35
 script = ExtResource("1_80udl")
 damage = 10.0
-
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=520770565]
-scale = Vector2(0.15234376, 0.14648438)
-texture = ExtResource("2_t0ygs")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2100864435]
 shape = SubResource("CircleShape2D_smrj6")

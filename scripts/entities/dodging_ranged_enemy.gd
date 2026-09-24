@@ -40,7 +40,7 @@ signal enemy_died
 @export var min_gold_drop: int = 21
 @export var max_gold_drop: int = 24
 var items_can_drop = [5, 7]        # Tipos de itens que esse arqueiro pode dropar (ex: Rédea e Sela)
-var chances_of_drop = [0.25, 0.15] # 25% de chance para o primeiro, 15% para o segundo
+var chances_of_drop = [0.20, 0.10] # 25% de chance para o primeiro, 15% para o segundo
 
 @onready var separation_area: Area2D = $SeparationArea
 @onready var health_bar: ProgressBar = $HealthBar

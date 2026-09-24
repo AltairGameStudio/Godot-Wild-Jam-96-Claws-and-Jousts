@@ -35,7 +35,7 @@ var hit_tween: Tween = null
 
 var drop = preload("res://scenes/ui/item.tscn")
 var items_can_drop = [3,4]
-var chances_of_drop = [0.1, 0.3]
+var chances_of_drop = [0.2, 0.1]
 
 func _ready() -> void:
 	add_to_group("enemies")

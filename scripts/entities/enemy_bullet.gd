@@ -27,3 +27,6 @@ func _on_body_entered(body: Node2D) -> void:
 
 func _on_screen_exited() -> void:
 	queue_free()
+
+func _draw() -> void:
+	draw_circle(Vector2.ZERO, 8.0, Color(1, 0.1, 0.1)) # Círculo vermelho de raio 8px
