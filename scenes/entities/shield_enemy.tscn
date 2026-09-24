@@ -45,6 +45,8 @@ contact_damage = 20.0
 knockback_multiplier = 0.7
 min_gold_drop = 5
 max_gold_drop = 6
+min_lvl_item_drop = 2
+max_lvl_item_drop = 4
 separation_strength = 30.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=2044408994]

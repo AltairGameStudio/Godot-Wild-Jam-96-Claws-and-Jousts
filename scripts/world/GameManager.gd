@@ -49,6 +49,7 @@ func change_world(scene_path: String) -> void:
 	if current_scene:
 		current_scene.queue_free()
 	
+	Engine.time_scale = 1.0
 	current_scene = load(scene_path).instantiate()
 	$World.add_child(current_scene)
 	
@@ -63,8 +64,9 @@ func change_world(scene_path: String) -> void:
 			
 		$Player.global_position = target_pos
 		$Player.velocity = Vector2.ZERO
-		# if $Player.has_method("respawn"):
-		# 	$Player.respawn()
+		$Player.can_move = true
+		if $Player.has_method("cancel_dash"):
+			$Player.cancel_dash()
 
 # Inicia a expedição limpando os dados da run anterior
 func start_run() -> void:

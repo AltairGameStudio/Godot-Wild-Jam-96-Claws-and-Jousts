@@ -43,7 +43,11 @@ func _process(_delta: float) -> void:
 
 func add_item_inventory(new_item: Area2D) -> bool:
 	var empty = null
-	var value = new_item.item_value[new_item.item_id/100] * new_item.item_id%100
+	var it_type = new_item.item_id / 100
+	var it_lvl = new_item.item_id % 100
+	var mult = 20 if (it_lvl == 11) else it_lvl
+	var value = int((new_item.item_value[it_type] * mult) * 0.5)
+	
 	for inv_slot in $inventory/invent/Container.get_children():
 		if inv_slot is not slot:
 			continue

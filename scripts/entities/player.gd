@@ -116,7 +116,7 @@ func update_info() -> void:
 
 func equipment_changed(item_id, item_equipped: bool):
 	var lvl : float = item_id%100
-	var is_legend : bool = (int(lvl) == 11)
+	var is_legend : bool = (int(lvl) == 6)
 	var controler = -1
 	var mod_color = Color(1,1,1,0.5)
 	var equip_txt = ""
@@ -127,17 +127,17 @@ func equipment_changed(item_id, item_equipped: bool):
 		
 	var it_type = int(item_id/100)
 	if it_type == 2:
-		var bonus_dmg = 50.0 if is_legend else (lvl * 2.0)
+		var bonus_dmg = 30.0 if is_legend else (lvl * 4.0)
 		extra_damage += controler * bonus_dmg
 		$PlayerCanvas/equipment/lance.modulate = mod_color
 		$PlayerCanvas/equipment/lance/lvl.text = equip_txt
 	elif it_type == 3:
-		var bonus_def = 50.0 if is_legend else (lvl * 3.0)
+		var bonus_def = 45.0 if is_legend else (lvl * 6.0)
 		defense += controler * bonus_def
 		$PlayerCanvas/equipment/armor.modulate = mod_color
 		$PlayerCanvas/equipment/armor/lvl.text = equip_txt
 	elif it_type == 4:
-		var health_bonus = 250.0 if is_legend else (lvl * 10.0)
+		var health_bonus = 150.0 if is_legend else (lvl * 20.0)
 		if item_equipped:
 			# Ao equipar: aumenta a vida extra e soma a mesma quantidade na vida atual
 			extra_health += health_bonus
@@ -150,17 +150,17 @@ func equipment_changed(item_id, item_equipped: bool):
 		$PlayerCanvas/equipment/cape.modulate = mod_color
 		$PlayerCanvas/equipment/cape/lvl.text = equip_txt
 	elif it_type == 5:
-		var bonus_steer = 4.0 if is_legend else (lvl / 5.0)
+		var bonus_steer = 1.5 if is_legend else (lvl / 5.0)
 		extra_steer_speed += controler * bonus_steer
 		$PlayerCanvas/equipment/rein.modulate = mod_color
 		$PlayerCanvas/equipment/rein/lvl.text = equip_txt
 	elif it_type == 6:
-		var bonus_spd_mult = 2.0 if is_legend else (lvl / 10.0)
+		var bonus_spd_mult = 0.75 if is_legend else (lvl / 10.0)
 		extra_speed_multiplier += controler * bonus_spd_mult
 		$PlayerCanvas/equipment/horseshoe.modulate = mod_color
 		$PlayerCanvas/equipment/horseshoe/lvl.text = equip_txt
 	elif it_type == 7:
-		var bonus_max_spd = 1000.0 if is_legend else (lvl * 50.0)
+		var bonus_max_spd = 375.0 if is_legend else (lvl * 50.0)
 		extra_speed += controler * bonus_max_spd
 		$PlayerCanvas/equipment/saddle.modulate = mod_color
 		$PlayerCanvas/equipment/saddle/lvl.text = equip_txt
@@ -281,19 +281,21 @@ func _update_hit_cooldowns(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	_update_hit_cooldowns(delta)
 	
+	# Verifica se está em expedição/arena antes de permitir o dash
+	var in_run = false
+	if is_instance_valid(get_tree().current_scene) and "is_in_run" in get_tree().current_scene:
+		in_run = get_tree().current_scene.is_in_run
+	elif get_node_or_null("/root/GameManager"):
+		in_run = get_node("/root/GameManager").is_in_run
+
 	if Input.is_key_pressed(KEY_SHIFT):
-		if not on_power_charge and power_charge_load >= 1.0:
+		if in_run and not on_power_charge and power_charge_load >= 1.0:
 			on_power_charge = true
 			var forward_vec = Vector2.UP.rotated(heading_angle)
-			
-			# Calcula a velocidade fixa do dash baseada na velocidade atual multiplicada (ex: 1.7x)
 			var base_spd = maxf(velocity.length(), min_charge_speed)
 			current_dash_speed = base_spd * 1.7
-			
-			# Aplica o vetor de velocidade instantâneo
 			velocity = forward_vec * current_dash_speed
 			apply_camera_shake(0.35)
-			
 			power_charge_changed.emit(power_charge_load, on_power_charge)
 	
 	_handle_movement(delta)
@@ -348,27 +350,28 @@ func _handle_movement(delta: float) -> void:
 		if velocity.length() > effective_max_speed:
 			velocity = velocity.normalized() * effective_max_speed
 	
-	if get_tree().current_scene.is_in_run:
-		if ((velocity.length() >= min_dash_charge_speed) and not on_power_charge):
-			# Enche proporcionalmente ao tempo definido em charge_time_to_fill
-			var fill_rate = delta / maxf(0.5, charge_time_to_fill) # Evita divisão por zero ou tempo negativo
+	# --- CONTROLE DA CARGA E DRENO DO DASH ---
+	# 1. Se estiver dando Dash, drena a barra até zerar e desativar (independente de estar na vila ou arena)
+	if on_power_charge:
+		if last_ghost >= ghost_intervals:
+			create_ghost()
+			last_ghost = 0.0
+		else:
+			last_ghost += delta
+
+		var drain_rate = delta / maxf(0.01, dash_duration)
+		power_charge_load = max(power_charge_load - drain_rate, 0.0)
+		power_charge_changed.emit(power_charge_load, on_power_charge)
+		
+		if power_charge_load <= 0.0:
+			on_power_charge = false
+
+	# 2. Só recarrega a barra com velocidade se estiver na Arena (is_in_run)
+	elif is_instance_valid(get_tree().current_scene) and "is_in_run" in get_tree().current_scene and get_tree().current_scene.is_in_run:
+		if velocity.length() >= min_dash_charge_speed:
+			var fill_rate = delta / maxf(0.5, charge_time_to_fill)
 			power_charge_load = min(power_charge_load + fill_rate, 1.0)
 			power_charge_changed.emit(power_charge_load, on_power_charge)
-
-		elif on_power_charge:
-			if last_ghost >= ghost_intervals:
-				create_ghost()
-				last_ghost = 0.0
-			else:
-				last_ghost += delta
-
-			# Esvazia proporcionalmente ao tempo definido em dash_duration
-			var drain_rate = delta / maxf(0.01, dash_duration)
-			power_charge_load = max(power_charge_load - drain_rate, 0.0)
-			power_charge_changed.emit(power_charge_load, on_power_charge)
-			
-			if power_charge_load <= 0.0:
-				on_power_charge = false
 
 func _update_lance_state() -> void:
 	if not lance_area:
@@ -615,7 +618,7 @@ func pickup_item(item: Area2D) -> void:
 			7: "Saddle"
 		}
 		var lvl_val = item_id % 100
-		var lvl_str = "Legend" if (lvl_val == 11) else ("Lvl %d" % lvl_val)
+		var lvl_str = "Legend" if (lvl_val == 6) else ("Lvl %d" % lvl_val)
 		$PlayerCanvas/notification.activate_notification("%s %s added to the inventory" % [items_available[item_id/100], lvl_str])
 
 func apply_slow(factor: float = 0.5) -> void:
@@ -702,3 +705,9 @@ func reset_to_starting_state() -> void:
 
 func _gold_changed(_new_amount: int) -> void:
 	update_info()
+
+func cancel_dash() -> void:
+	on_power_charge = false
+	power_charge_load = 0.0
+	velocity = Vector2.ZERO
+	power_charge_changed.emit(power_charge_load, on_power_charge)

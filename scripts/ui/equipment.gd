@@ -70,13 +70,14 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 
 func return_to_inventory(new_item_id) -> bool:
 	var empty = null
-	for inv_slot in  $"../../../invent/Container".get_children():
+	for inv_slot in $"../../../invent/Container".get_children():
 		if inv_slot is not slot:
 			continue
 		if inv_slot.id == new_item_id:
 			var new_amount = int(inv_slot.get_node("amount").text)
 			new_amount += 1
 			inv_slot.get_node("amount").text = str(new_amount)
+			inv_slot.slot_value = inv_slot._calc_slot_value(new_item_id, new_amount)
 			if inv_slot.has_method("_update_visual"):
 				inv_slot._update_visual()
 			return true 
@@ -86,6 +87,7 @@ func return_to_inventory(new_item_id) -> bool:
 		empty.get_node("sprite").texture = equip_sprite
 		empty.get_node("amount").text = "1"
 		empty.id = new_item_id
+		empty.slot_value = empty._calc_slot_value(new_item_id, 1)
 		if empty.has_method("_update_visual"):
 			empty._update_visual()
 		return true

@@ -182,7 +182,7 @@ func create_item() -> void:
 	for idx in range(items_can_drop.size()):
 		if randf() <= chances_of_drop[idx]:
 			var idx_drop = drop.instantiate()
-			var idx_lvl = randi_range(1,5)
+			var idx_lvl = randi_range(3, 5)
 			var offset = Vector2(randi_range(-5,5), randi_range(-5,5))
 			idx_drop.setup(items_can_drop[idx]*100 + idx_lvl, self.global_position + offset)
 			get_tree().current_scene.get_node("World/Arena").add_child(idx_drop)
@@ -199,6 +199,9 @@ func die() -> void:
 	set_collision_mask_value(1, false)
 	set_collision_layer_value(2, false)
 	set_collision_mask_value(2, false)
+	$CollisionShape2D.set_deferred("disabled", true)
+	set_collision_layer_value(4, false)
+	set_collision_mask_value(3, false)
 	
 	if is_instance_valid(health_bar):
 		health_bar.visible = false

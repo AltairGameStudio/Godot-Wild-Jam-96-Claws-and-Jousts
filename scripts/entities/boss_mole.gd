@@ -7,7 +7,7 @@ signal boss_defeated
 
 @export_group("Atributos do Chefe")
 @export var boss_name: String = "Guardian Mole"
-@export var max_health: float = 8.0
+@export var max_health: float = 8000.0
 @export var move_speed: float = 100.0
 @export var turn_speed: float = 4.5
 @export var contact_damage: float = 25.0

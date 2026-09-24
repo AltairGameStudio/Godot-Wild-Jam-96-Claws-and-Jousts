@@ -51,13 +51,13 @@ func _is_legend_unlocked() -> bool:
 	return false
 
 func on_lvl_up() -> void:
-	var max_lvl = 11 if _is_legend_unlocked() else 10
+	var max_lvl = 6 if _is_legend_unlocked() else 5
 	if item_lvl >= max_lvl:
 		return
 	item_lvl += 1
 	id += 1
-	if item_lvl == 11:
-		item_cost = (item_value[item_type] * 10) * 2
+	if item_lvl == 6:
+		item_cost = (item_value[item_type] * 5) * 2
 		$sprite.modulate = Color(0.65, 1.25, 0.85)
 	else:
 		item_cost = item_value[item_type] * item_lvl
@@ -70,8 +70,8 @@ func on_lvl_down() -> void:
 		return
 	item_lvl -= 1
 	id -= 1
-	if item_lvl == 11:
-		item_cost = (item_value[item_type] * 10) * 2
+	if item_lvl == 6:
+		item_cost = (item_value[item_type] * 5) * 2
 		$sprite.modulate = Color(0.65, 1.25, 0.85)
 	else:
 		item_cost = item_value[item_type] * item_lvl

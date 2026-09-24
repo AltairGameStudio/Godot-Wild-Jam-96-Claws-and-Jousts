@@ -22,12 +22,12 @@ var item_description = {
 	7: "Increases the max speed in (%d)."
 }
 var item_value = {
-	2: 5,
-	3: 8,
-	4: 3,
-	5: 6,
-	6: 4,
-	7: 10
+	2: 18,   # ID 2: Lança (Lance)   
+	3: 10,   # ID 3: Armadura (Armor)
+	4: 12,   # ID 4: Capa (Cape)     
+	5: 16,   # ID 5: Rédea (Rein)    
+	6: 20,   # ID 6: Ferradura (Shoe)
+	7: 14   # ID 7: Sela (Saddle)    
 }
 var slot_value = 0
 

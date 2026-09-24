@@ -13,11 +13,11 @@ func _process(delta: float) -> void:
 func _on_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and last_click <= 0:
 		last_click = click_delay
-		var cur_val = 11 if level_label.text == "Legend" else int(level_label.text)
+		var cur_val = 6 if level_label.text == "Legend" else int(level_label.text)
 		if cur_val > 1:
 			var nxt = cur_val - 1
 			get_tree().call_group("buy_store", "on_lvl_down")
-			if nxt == 11:
+			if nxt == 6:
 				level_label.text = "Legend"
 				level_label.modulate = Color(0.65, 1.25, 0.85)
 			else:

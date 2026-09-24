@@ -17,6 +17,8 @@ signal enemy_died
 @export_group("Drops de Recompensa")
 @export var min_gold_drop: int = 1   # Quantidade mínima de ouro
 @export var max_gold_drop: int = 4  # Quantidade máxima de ouro
+@export var min_lvl_item_drop: int = 1
+@export var max_lvl_item_drop: int = 3
 
 @export var separation_strength: float = 60.0 # Força com que os inimigos se repelem
 @onready var separation_area: Area2D = $SeparationArea
@@ -198,7 +200,7 @@ func create_item() -> void:
 	for idx in range(items_can_drop.size()):
 		if randf() <= chances_of_drop[idx]:
 			var idx_drop = drop.instantiate()
-			var idx_lvl = randi_range(1,5)
+			var idx_lvl = randi_range(min_lvl_item_drop, max_lvl_item_drop)
 			var offset = Vector2(randi_range(-5,5), randi_range(-5,5))
 			idx_drop.setup(items_can_drop[idx]*100 + idx_lvl, self.global_position + offset)
 			get_tree().current_scene.get_node("World/Arena").add_child(idx_drop)
@@ -217,6 +219,9 @@ func die() -> void:
 	set_collision_mask_value(1, false)
 	set_collision_layer_value(2, false)
 	set_collision_mask_value(2, false)
+	$CollisionShape2D.set_deferred("disabled", true)
+	set_collision_layer_value(4, false)
+	set_collision_mask_value(3, false)
 	
 	if is_instance_valid(health_bar):
 		health_bar.visible = false

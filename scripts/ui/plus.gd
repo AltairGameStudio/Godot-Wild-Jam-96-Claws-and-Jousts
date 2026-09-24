@@ -26,12 +26,12 @@ func _is_legend_unlocked() -> bool:
 func _on_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and last_click <= 0:
 		last_click = click_delay
-		var max_lvl = 11 if _is_legend_unlocked() else 10
-		var cur_val = 11 if level_label.text == "Legend" else int(level_label.text)
+		var max_lvl = 6 if _is_legend_unlocked() else 5
+		var cur_val = 6 if level_label.text == "Legend" else int(level_label.text)
 		if cur_val < max_lvl:
 			var nxt = cur_val + 1
 			get_tree().call_group("buy_store", "on_lvl_up")
-			if nxt == 11:
+			if nxt == 6:
 				level_label.text = "Legend"
 				level_label.modulate = Color(0.65, 1.25, 0.85)
 			else:
