@@ -27,7 +27,7 @@ signal boss_defeated
 @export var bullet_damage: float = 8.0
 
 @export_group("Drops")
-@export var gold_drop_amount: int = 60
+@export var gold_drop_amount: int = 400
 
 enum State { SURFACED, SPIN_ATTACK, BURROWING_DOWN, UNDERGROUND, BURROWING_UP, DEAD }
 var current_state: State = State.SURFACED
@@ -297,6 +297,13 @@ func _emerge_from_ground() -> void:
 	burrow_timer = burrow_cycle_time
 
 func _set_collisions_active(active: bool) -> void:
+	if not active:
+		collision_layer = 0
+		collision_mask = 0
+	else:
+		collision_layer = 4
+		collision_mask = 7
+		
 	if physical_collision:
 		physical_collision.set_deferred("disabled", !active)
 		

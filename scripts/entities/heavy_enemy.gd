@@ -188,6 +188,32 @@ func create_item() -> void:
 			get_tree().current_scene.get_node("World/Arena").add_child(idx_drop)
 			return
 
+func _disable_all_collisions() -> void:
+	collision_layer = 0
+	collision_mask = 0
+	set_physics_process(false)
+	velocity = Vector2.ZERO
+	
+	for child in get_children():
+		if child is CollisionShape2D:
+			child.set_deferred("disabled", true)
+		elif child is Area2D:
+			child.set_deferred("monitoring", false)
+			child.set_deferred("monitorable", false)
+			for subchild in child.get_children():
+				if subchild is CollisionShape2D:
+					subchild.set_deferred("disabled", true)
+		elif child is Node2D:
+			for subchild in child.get_children():
+				if subchild is Area2D:
+					subchild.set_deferred("monitoring", false)
+					subchild.set_deferred("monitorable", false)
+					for leaf in subchild.get_children():
+						if leaf is CollisionShape2D:
+							leaf.set_deferred("disabled", true)
+				elif subchild is CollisionShape2D:
+					subchild.set_deferred("disabled", true)
+
 func die() -> void:
 	if is_dead: return
 	is_dead = true
@@ -195,13 +221,7 @@ func die() -> void:
 	call_deferred("create_item")
 	enemy_died.emit()
 	
-	set_collision_layer_value(1, false)
-	set_collision_mask_value(1, false)
-	set_collision_layer_value(2, false)
-	set_collision_mask_value(2, false)
-	$CollisionShape2D.set_deferred("disabled", true)
-	set_collision_layer_value(4, false)
-	set_collision_mask_value(3, false)
+	_disable_all_collisions()
 	
 	if is_instance_valid(health_bar):
 		health_bar.visible = false

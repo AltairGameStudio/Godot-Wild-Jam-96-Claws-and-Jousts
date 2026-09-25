@@ -8,6 +8,7 @@ func set_empty_slot() -> void:
 	$sprite.texture = null
 	$sprite.modulate = Color.WHITE
 	self.id = 0
+	self.slot_value = 0
 
 func _get_drag_data(_at_position: Vector2) -> Variant:
 	if self.id == 0:
@@ -50,15 +51,24 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 		if quantity == 1:
 			data.set_empty_slot()
 		else:
-			data.get_node("amount").text = str(quantity-1)
+			data.get_node("amount").text = str(quantity - 1)
+			data.slot_value = data._calc_slot_value(data.id, quantity - 1)
+			if data.has_method("_update_visual"):
+				data._update_visual()
 	else:
 		get_tree().call_group("player", "equipment_changed", id, false)
 		if quantity == 1:
 			var n_id = data.id
 			data.id = id
+			data.slot_value = data._calc_slot_value(data.id, 1)
 			id = n_id
+			if data.has_method("_update_visual"):
+				data._update_visual()
 		else:
 			data.get_node("amount").text = str(quantity - 1)
+			data.slot_value = data._calc_slot_value(data.id, quantity - 1)
+			if data.has_method("_update_visual"):
+				data._update_visual()
 			return_to_inventory(id)
 			id = data.id
 	if !(data is buy_slot):
@@ -66,7 +76,7 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 		data.get_node("amount").visible = true
 	$sprite.modulate = Color(0.65, 1.25, 0.85) if (self.id % 100 == 11) else Color.WHITE
 	get_tree().call_group("player", "equipment_changed", self.id, true)
-	slot_value = data.slot_value
+	slot_value = _calc_slot_value(self.id, 1)
 
 func return_to_inventory(new_item_id) -> bool:
 	var empty = null

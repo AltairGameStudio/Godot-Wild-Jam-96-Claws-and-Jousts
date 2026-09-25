@@ -64,7 +64,7 @@ func change_world(scene_path: String) -> void:
 			
 		$Player.global_position = target_pos
 		$Player.velocity = Vector2.ZERO
-		$Player.can_move = true
+		$Player.can_move = !is_boss_level
 		if $Player.has_method("cancel_dash"):
 			$Player.cancel_dash()
 

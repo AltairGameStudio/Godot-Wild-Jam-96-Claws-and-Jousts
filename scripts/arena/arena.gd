@@ -370,19 +370,11 @@ func _end_phase_by_time() -> void:
 	elif get_node_or_null("/root/GameManager"):
 		current_phase = get_node("/root/GameManager").current_phase
 
-	# Se completou a Fase do Boss, exibe o painel estilizado de vitória
-	if current_phase >= BOSS_PHASE and is_instance_valid(victory_overlay):
-		victory_overlay.visible = true
-		if is_instance_valid(player_ref):
-			player_ref.can_move = false
-			player_ref.velocity = Vector2.ZERO
-		# Toca a música da tela inicial com transição suave
-		if get_node_or_null("/root/AudioManager"):
-			AudioManager.play_menu_theme()
-	else:
-		_show_announcement("TIME'S UP!", "Travelling to the town...", 3.5, Color("f2d9a6ff"))
-		if get_tree().current_scene.has_method("end_run_success"):
-			get_tree().current_scene.end_run_success()
+	_show_announcement("TIME'S UP!", "Travelling to the town...", 3.5, Color("f2d9a6ff"))
+	if get_tree().current_scene.has_method("end_run_success"):
+		get_tree().current_scene.end_run_success()
+	elif get_node_or_null("/root/GameManager"):
+		get_node("/root/GameManager").end_run_success()
 
 func _end_phase_by_death() -> void:
 	var cur_gold = 0
@@ -604,11 +596,12 @@ func _on_endless_button_pressed() -> void:
 	if victory_overlay:
 		victory_overlay.visible = false
 	if is_instance_valid(player_ref):
-		player_ref.can_move = false
-		player_ref.velocity = Vector2.ZERO
+		player_ref.can_move = true
 	_show_announcement("ENDLESS MODE!", "Travelling to town...", 2.5, Color("f2d9a6ff"))
 	if get_tree().current_scene.has_method("end_run_success"):
 		get_tree().current_scene.end_run_success()
+	elif get_node_or_null("/root/GameManager"):
+		get_node("/root/GameManager").end_run_success()
 
 func _on_menu_button_pressed() -> void:
 	if get_node_or_null("/root/GameManager"):
