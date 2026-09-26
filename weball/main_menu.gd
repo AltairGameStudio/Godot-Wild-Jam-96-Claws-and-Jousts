@@ -223,7 +223,7 @@ Your lance deals damage [b]proportional to your velocity[/b]. Ram enemies at max
 [color=#d4a373][b]GAME DESIGN & PROGRAMMING[/b][/color]
 [color=#ffffff]Pedro Coterli (@PedroPHC25)[/color]
 [color=#ffffff]João Gabriel (@joaogabrielsg)[/color]
-[color=#ffffff]Jean Domingueti (@)[/color]
+[color=#ffffff]Jean Domingueti (@JDomingueti)[/color]
 [color=#ffffff]Pedro Thomaz (@pedrotdev)[/color]
 
 [color=#d4a373][b]ART & ANIMATION[/b][/color]
