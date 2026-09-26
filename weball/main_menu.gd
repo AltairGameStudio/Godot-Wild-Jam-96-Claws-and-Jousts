@@ -7,6 +7,9 @@ const TEX_TITLE = preload("res://assets/sprites/start_main_menu/title.png")
 const TEX_START = preload("res://assets/sprites/start_main_menu/start.png")
 const TEX_CONTROLS = preload("res://assets/sprites/start_main_menu/controls.png")
 const TEX_CONFIG = preload("res://assets/sprites/start_main_menu/config.png")
+# PLACEHOLDER: Quando tiver o sprite do botão de créditos, basta descomentar / substituir por preload:
+# const TEX_CREDITS = preload("res://assets/sprites/start_main_menu/credits.png")
+const TEX_CREDITS: Texture2D = null
 const TEX_EXIT = preload("res://assets/sprites/start_main_menu/exit.png")
 const TEX_CLOSE = preload("res://assets/sprites/start_main_menu/close.png")
 
@@ -21,14 +24,16 @@ const COLOR_PRESSED = Color(0.65, 0.65, 0.65, 1.0)
 var bg_rect: TextureRect
 var right_box: VBoxContainer
 var title_rect: TextureRect
-var btn_start: TextureButton
-var btn_controls: TextureButton
-var btn_config: TextureButton
-var btn_exit: TextureButton
+var btn_start: Control
+var btn_controls: Control
+var btn_config: Control
+var btn_credits: Control
+var btn_exit: Control
 var fade_overlay: ColorRect
 
 var controls_modal: Panel
 var config_modal: Panel
+var credits_modal: Panel
 var is_transitioning: bool = false
 
 func _ready() -> void:
@@ -75,14 +80,16 @@ func _build_ui() -> void:
 	right_box.add_child(spacer)
 
 	# 4. Botões
-	btn_start = _create_btn(TEX_START)
-	btn_controls = _create_btn(TEX_CONTROLS)
-	btn_config = _create_btn(TEX_CONFIG)
-	btn_exit = _create_btn(TEX_EXIT)
+	btn_start = _create_btn(TEX_START, "START")
+	btn_controls = _create_btn(TEX_CONTROLS, "CONTROLS")
+	btn_config = _create_btn(TEX_CONFIG, "CONFIG")
+	btn_credits = _create_btn(TEX_CREDITS, "CREDITS")
+	btn_exit = _create_btn(TEX_EXIT, "EXIT")
 
 	right_box.add_child(btn_start)
 	right_box.add_child(btn_controls)
 	right_box.add_child(btn_config)
+	right_box.add_child(btn_credits)
 	right_box.add_child(btn_exit)
 
 	# 5. Cortina de transição
@@ -125,7 +132,7 @@ Your lance deals damage [b]proportional to your velocity[/b]. Ram enemies at max
 	controls_modal.add_child(rich_text)
 	add_child(controls_modal)
 
-# ==============================
+	# ==============================
 	# MODAL DE CONFIGURAÇÕES NATIVO
 	# ==============================
 	config_modal = _create_base_modal("SETTINGS")
@@ -195,9 +202,46 @@ Your lance deals damage [b]proportional to your velocity[/b]. Ram enemies at max
 
 	add_child(config_modal)
 
+	# ==============================
+	# MODAL DE CRÉDITOS
+	# ==============================
+	credits_modal = _create_base_modal("CREDITS")
+	
+	var credits_text = RichTextLabel.new()
+	credits_text.bbcode_enabled = true
+	credits_text.fit_content = false
+	credits_text.scroll_active = true
+	credits_text.set_anchors_preset(PRESET_FULL_RECT)
+	credits_text.offset_left = 32.0
+	credits_text.offset_top = 58.0
+	credits_text.offset_right = -32.0
+	credits_text.offset_bottom = -24.0
+	
+	# Placeholders configuráveis para a equipe e créditos
+	credits_text.text = """[center]
+[color=#d4a373][b]A GAME BY[/b][/color]
+[color=#ffffff]ALTAIR GAME STUDIO[/color]
+	
+[color=#d4a373][b]GAME DESIGN & PROGRAMMING[/b][/color]
+[color=#ffffff]Pedro Coterli (@PedroPHC25)[/color]
+[color=#ffffff]João Gabriel (@)[/color]
+[color=#ffffff]Jean Domingueti (@)[/color]
+[color=#ffffff]Pedro Thomaz (@)[/color]
+
+[color=#d4a373][b]ART & ANIMATION[/b][/color]
+[color=#ffffff]João Gabriel (@)[/color]
+
+[color=#d4a373][b]MUSIC & SOUND DESIGN[/b][/color]
+[color=#ffffff]João Gabriel[/color]
+
+[color=#888888]Thank you for playing![/color]
+[/center]"""
+	credits_modal.add_child(credits_text)
+	add_child(credits_modal)
+
 func _create_base_modal(title_text: String) -> Panel:
 	var panel = Panel.new()
-	panel.custom_minimum_size = Vector2(560, 450)
+	panel.custom_minimum_size = Vector2(560, 500)
 	panel.anchor_left = 0.5
 	panel.anchor_top = 0.5
 	panel.anchor_right = 0.5
@@ -245,21 +289,54 @@ func _create_base_modal(title_text: String) -> Panel:
 	close_btn.anchor_right = 1.0
 	close_btn.offset_left = -44.0
 	close_btn.offset_top = 8.0
-	close_btn.pressed.connect(func(): panel.visible = false)
+	if close_btn is BaseButton:
+		close_btn.pressed.connect(func(): panel.visible = false)
 	panel.add_child(close_btn)
 
 	return panel
 
-func _create_btn(tex: Texture2D) -> TextureButton:
-	var btn = TextureButton.new()
-	btn.texture_normal = tex
-	btn.stretch_mode = TextureButton.STRETCH_KEEP_CENTERED
-	btn.custom_minimum_size = tex.get_size()
-	btn.pivot_offset = tex.get_size() / 2.0
-	return btn
+func _create_btn(tex: Texture2D, fallback_text: String = "") -> Control:
+	if tex != null:
+		var btn = TextureButton.new()
+		btn.texture_normal = tex
+		btn.stretch_mode = TextureButton.STRETCH_KEEP_CENTERED
+		btn.custom_minimum_size = tex.get_size()
+		btn.pivot_offset = tex.get_size() / 2.0
+		return btn
+	else:
+		# Botão estilizado de fallback enquanto a textura não for fornecida
+		var btn = Button.new()
+		btn.text = fallback_text if fallback_text != "" else "BUTTON"
+		btn.custom_minimum_size = Vector2(192, 56)
+		btn.pivot_offset = Vector2(96, 28)
+		
+		var btn_normal = StyleBoxFlat.new()
+		btn_normal.bg_color = Color(0.12, 0.18, 0.15, 0.95)
+		btn_normal.border_color = Color(0.83, 0.64, 0.45, 0.9)
+		btn_normal.set_border_width_all(2)
+		btn_normal.set_corner_radius_all(6)
+		
+		var btn_hover = StyleBoxFlat.new()
+		btn_hover.bg_color = Color(0.20, 0.30, 0.25, 0.98)
+		btn_hover.border_color = Color(0.95, 0.85, 0.65, 1.0)
+		btn_hover.set_border_width_all(2)
+		btn_hover.set_corner_radius_all(6)
+		
+		var btn_pressed = StyleBoxFlat.new()
+		btn_pressed.bg_color = Color(0.06, 0.10, 0.08, 0.95)
+		btn_pressed.border_color = Color(0.83, 0.64, 0.45, 1.0)
+		btn_pressed.set_border_width_all(2)
+		btn_pressed.set_corner_radius_all(6)
+
+		btn.add_theme_stylebox_override("normal", btn_normal)
+		btn.add_theme_stylebox_override("hover", btn_hover)
+		btn.add_theme_stylebox_override("pressed", btn_pressed)
+		btn.add_theme_color_override("font_color", Color("f2d9a6ff"))
+		btn.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0))
+		return btn
 
 func _setup_button_effects() -> void:
-	var buttons = [btn_start, btn_controls, btn_config, btn_exit]
+	var buttons = [btn_start, btn_controls, btn_config, btn_credits, btn_exit]
 	for btn in buttons:
 		btn.mouse_entered.connect(func():
 			if not is_transitioning:
@@ -273,37 +350,50 @@ func _setup_button_effects() -> void:
 				t.tween_property(btn, "modulate", COLOR_NORMAL, 0.08)
 				t.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.08)
 		)
-		btn.button_down.connect(func():
-			btn.modulate = COLOR_PRESSED
-			btn.position.y += 2.0
-		)
-		btn.button_up.connect(func():
-			btn.modulate = COLOR_HOVER
-			btn.position.y -= 2.0
-		)
+		if btn is BaseButton:
+			btn.button_down.connect(func():
+				btn.modulate = COLOR_PRESSED
+				btn.position.y += 2.0
+			)
+			btn.button_up.connect(func():
+				btn.modulate = COLOR_HOVER
+				btn.position.y -= 2.0
+			)
 
-	btn_start.pressed.connect(_on_start_pressed)
-	btn_controls.pressed.connect(func():
-		config_modal.visible = false
-		controls_modal.visible = true
-	)
-	btn_config.pressed.connect(func():
-		controls_modal.visible = false
-		config_modal.visible = true
-	)
-	btn_exit.pressed.connect(func():
-		if not is_transitioning:
-			get_tree().quit()
-	)
+	if btn_start is BaseButton:
+		btn_start.pressed.connect(_on_start_pressed)
+	if btn_controls is BaseButton:
+		btn_controls.pressed.connect(func():
+			config_modal.visible = false
+			credits_modal.visible = false
+			controls_modal.visible = true
+		)
+	if btn_config is BaseButton:
+		btn_config.pressed.connect(func():
+			controls_modal.visible = false
+			credits_modal.visible = false
+			config_modal.visible = true
+		)
+	if btn_credits is BaseButton:
+		btn_credits.pressed.connect(func():
+			controls_modal.visible = false
+			config_modal.visible = false
+			credits_modal.visible = true
+		)
+	if btn_exit is BaseButton:
+		btn_exit.pressed.connect(func():
+			if not is_transitioning:
+				get_tree().quit()
+		)
 
 func _animate_intro() -> void:
 	title_rect.modulate.a = 0.0
-	for b in [btn_start, btn_controls, btn_config, btn_exit]:
+	for b in [btn_start, btn_controls, btn_config, btn_credits, btn_exit]:
 		b.modulate.a = 0.0
 
 	var tween = create_tween()
 	tween.tween_property(title_rect, "modulate:a", 1.0, 0.35)
-	for b in [btn_start, btn_controls, btn_config, btn_exit]:
+	for b in [btn_start, btn_controls, btn_config, btn_credits, btn_exit]:
 		tween.tween_property(b, "modulate:a", 1.0, 0.1)
 
 func _on_start_pressed() -> void:
