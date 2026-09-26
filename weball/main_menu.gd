@@ -7,9 +7,7 @@ const TEX_TITLE = preload("res://assets/sprites/start_main_menu/title.png")
 const TEX_START = preload("res://assets/sprites/start_main_menu/start.png")
 const TEX_CONTROLS = preload("res://assets/sprites/start_main_menu/controls.png")
 const TEX_CONFIG = preload("res://assets/sprites/start_main_menu/config.png")
-# PLACEHOLDER: Quando tiver o sprite do botão de créditos, basta descomentar / substituir por preload:
-# const TEX_CREDITS = preload("res://assets/sprites/start_main_menu/credits.png")
-const TEX_CREDITS: Texture2D = null
+const TEX_CREDITS = preload("res://assets/sprites/start_main_menu/credits.png")
 const TEX_EXIT = preload("res://assets/sprites/start_main_menu/exit.png")
 const TEX_CLOSE = preload("res://assets/sprites/start_main_menu/close.png")
 
@@ -224,15 +222,15 @@ Your lance deals damage [b]proportional to your velocity[/b]. Ram enemies at max
 	
 [color=#d4a373][b]GAME DESIGN & PROGRAMMING[/b][/color]
 [color=#ffffff]Pedro Coterli (@PedroPHC25)[/color]
-[color=#ffffff]João Gabriel (@)[/color]
+[color=#ffffff]João Gabriel (@joaogabrielsg)[/color]
 [color=#ffffff]Jean Domingueti (@)[/color]
-[color=#ffffff]Pedro Thomaz (@)[/color]
+[color=#ffffff]Pedro Thomaz (@pedrotdev)[/color]
 
 [color=#d4a373][b]ART & ANIMATION[/b][/color]
-[color=#ffffff]João Gabriel (@)[/color]
+[color=#ffffff]João Gabriel (@joaogabrielsg)[/color]
 
 [color=#d4a373][b]MUSIC & SOUND DESIGN[/b][/color]
-[color=#ffffff]João Gabriel[/color]
+[color=#ffffff]João Gabriel (@joaogabrielsg)[/color]
 
 [color=#888888]Thank you for playing![/color]
 [/center]"""
